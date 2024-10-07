@@ -53,21 +53,9 @@ jobs:
           pip install -r requirements.txt
           pip freeze
 
-      - name: Install helm
-        run: |
-          curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
-      
       - name: Render chartpress
         run: |
           chartpress
-
-      - name: Lint chart's templates
-        run: |
-          helm lint ./kbatch --strict --values kbatch/values.yaml
-
-      - name: Validate chart's templates can render
-        run: |
-          helm template ./kbatch --values kbatch/values.yaml 1>/dev/null
 
       # Starts a k8s cluster with NetworkPolicy enforcement and installs kubectl
       #
@@ -77,7 +65,11 @@ jobs:
           k3s-channel: ${{ matrix.k3s-channel }}
           metrics-enabled: false
           traefik-enabled: false
-          docker-enabled: false
+          docker-enabled: true
+
+      - name: Lint chart's templates
+        run: |
+          helm lint ./kbatch --strict --values kbatch/values.yaml
 
       - name: Validate charts' rendered templates are valid k8s resources
         run: |
