@@ -23,6 +23,7 @@ The following table lists the configurable parameters of the Kbatch-proxy chart 
 | `imagePullSecrets` |  | `[]` |
 | `nameOverride` |  | `""` |
 | `fullnameOverride` |  | `""` |
+| `rbac.create` |  | `true` |
 | `serviceAccount.create` |  | `true` |
 | `serviceAccount.annotations` |  | `{}` |
 | `serviceAccount.name` |  | `""` |
