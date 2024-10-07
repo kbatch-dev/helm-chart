@@ -3,4 +3,5 @@ name: kbatch-proxy
 description: A Helm chart for kbatch-proxy
 type: application
 version: 0.0.1-set.by.chartpress
-appVersion: "0.4.2"
+# sync with chartpress.yaml
+appVersion: "0.5.0a1"
