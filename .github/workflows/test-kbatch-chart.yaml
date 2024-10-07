@@ -20,7 +20,7 @@ defaults:
 
 jobs:
   test-install-chart:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     strategy:
       # Keep running even if one variation of the job fail
@@ -33,32 +33,44 @@ jobs:
         # k3s-version: https://github.com/rancher/k3s/tags
         # k3s-channel: https://update.k3s.io/v1-release/channels
         include:
-          - k3s-channel: v1.19
-          - k3s-channel: v1.16
+          - k3s-channel: v1.28
+          - k3s-channel: v1.31
 
     steps:
-      - uses: actions/checkout@v2
-      - name: Install helm
-        run: |
-          curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
+      - uses: actions/checkout@v4
+        with:
+          # chartpress requires git history to set chart version and image tags
+          # correctly
+          fetch-depth: 0
 
-      - name: Lint chart's templates
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      
+      - name: Install dependencies
         run: |
-          helm lint ./kbatch --strict --values kbatch/values.yaml
+          pip install -r requirements.txt
+          pip freeze
 
-      - name: Validate chart's templates can render
+      - name: Render chartpress
         run: |
-          helm template ./kbatch --values kbatch/values.yaml 1>/dev/null
+          chartpress
 
       # Starts a k8s cluster with NetworkPolicy enforcement and installs kubectl
       #
       # ref: https://github.com/jupyterhub/action-k3s-helm/
-      - uses: jupyterhub/action-k3s-helm@v1
+      - uses: jupyterhub/action-k3s-helm@v4
         with:
           k3s-channel: ${{ matrix.k3s-channel }}
           metrics-enabled: false
           traefik-enabled: false
-          docker-enabled: false
+          # docker-enabled required to access images built in chartpress stage
+          docker-enabled: true
+
+      - name: Lint chart's templates
+        run: |
+          helm lint ./kbatch --strict --values kbatch/values.yaml
 
       - name: Validate charts' rendered templates are valid k8s resources
         run: |
