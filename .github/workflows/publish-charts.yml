@@ -19,7 +19,7 @@ defaults:
     shell: bash
 
 env:
-  CHARTPRESS_ARGS: >
+  CHARTPRESS_ARGS: >-
     --builder docker-buildx
     --platform linux/amd64
     --platform linux/arm64
